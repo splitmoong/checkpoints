@@ -1,0 +1,164 @@
+package main.java.com.gamesavemanager.ui;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.io.File;
+
+public class AddGameWindow {
+    private JPanel mainWindow;
+    private JPanel centerPanel;
+    private JLabel gameImage;
+    private JButton btnCancel;
+    private JButton btnAddGame;
+
+    public AddGameWindow() {
+        mainWindow = new JPanel(new GridLayout(1, 2, 10, 0));
+        mainWindow.setPreferredSize(new Dimension(670, 340));
+        mainWindow.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
+
+
+        // LEFT PANEL
+        JPanel leftPanel = new JPanel(new BorderLayout());
+        leftPanel.setPreferredSize(new Dimension(350, 350));
+        leftPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1, true));
+
+        JPanel imageContainer = new JPanel(new GridBagLayout());
+        JLabel placeholderLabel = new JLabel("No Image Loaded");
+        placeholderLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        placeholderLabel.setVerticalAlignment(SwingConstants.CENTER);
+        placeholderLabel.setBorder(BorderFactory.createDashedBorder(Color.GRAY));
+        placeholderLabel.setPreferredSize(new Dimension(300, 300));
+
+        JButton pickImageButton = new JButton("Pick Image");
+        JTextField imagePathTextField = new JTextField();
+        imagePathTextField.setEditable(false);
+        imagePathTextField.setVisible(false);
+
+        GridBagConstraints leftGbc = new GridBagConstraints();
+        leftGbc.gridx = 0;
+        leftGbc.gridy = 0;
+        leftGbc.insets = new Insets(10, 10, 10, 10);
+        imageContainer.add(placeholderLabel, leftGbc);
+
+        leftGbc.gridy = 1;
+        imageContainer.add(pickImageButton, leftGbc);
+
+        leftPanel.add(imageContainer, BorderLayout.CENTER);
+        leftPanel.add(imagePathTextField, BorderLayout.SOUTH);
+
+        // RIGHT PANEL
+        JPanel rightPanel = new JPanel();
+        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
+
+        // Row 1: Save file picker
+        JPanel filePickerPanel = new JPanel(new BorderLayout());
+        JButton pickSaveFileButton = new JButton("Pick Save File");
+        filePickerPanel.add(pickSaveFileButton, BorderLayout.CENTER);
+
+        pickSaveFileButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            int result = fileChooser.showOpenDialog(null);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
+                System.out.println("Selected Save File: " + selectedFile.getAbsolutePath());
+                // You can store or use the file as needed
+            }
+        });
+
+        // Row 2: Game name entry
+        JPanel namePanel = new JPanel(new BorderLayout());
+        JTextArea gameNameArea = new JTextArea(2, 20);
+        gameNameArea.setBorder(BorderFactory.createTitledBorder("Game Name"));
+        namePanel.add(gameNameArea, BorderLayout.CENTER);
+
+        // Row 3: Metadata table
+        String[] columnNames = {"Field", "Value", "Edit"};
+        Object[][] data = {{"Genre", "", "✏️"}, {"Developer", "", "✏️"}, {"Release Date", "", "✏️"}};
+        JTable metadataTable = new JTable(data, columnNames);
+        JScrollPane tableScrollPane = new JScrollPane(metadataTable);
+
+        // Row 4: Buttons
+        JPanel actionButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        btnCancel = new JButton("Cancel");
+        btnAddGame = new JButton("Save Changes");
+        actionButtons.add(btnCancel);
+        actionButtons.add(btnAddGame);
+
+        // Add all right rows
+        rightPanel.add(filePickerPanel);
+        rightPanel.add(Box.createVerticalStrut(10));
+        rightPanel.add(namePanel);
+        rightPanel.add(Box.createVerticalStrut(10));
+        rightPanel.add(tableScrollPane);
+        rightPanel.add(Box.createVerticalStrut(10));
+        rightPanel.add(actionButtons);
+
+        // Add panels to main
+        mainWindow.add(leftPanel);
+        mainWindow.add(rightPanel);
+
+        // Image picker logic
+        pickImageButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            int result = fileChooser.showOpenDialog(null);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                String imagePath = fileChooser.getSelectedFile().getAbsolutePath();
+                imagePathTextField.setText(imagePath);
+                imagePathTextField.setVisible(true);
+                ImageIcon icon = new ImageIcon(imagePath);
+                Image scaledImage = icon.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH);
+                placeholderLabel.setIcon(new ImageIcon(scaledImage));
+                placeholderLabel.setText("");
+                placeholderLabel.setBorder(null);
+                imageContainer.remove(pickImageButton);
+                imageContainer.revalidate();
+                imageContainer.repaint();
+            }
+        });
+
+        placeholderLabel.setText("Drop Image Here or Use Button");
+
+        imageContainer.setTransferHandler(new TransferHandler() {
+            @Override
+            public boolean canImport(TransferSupport support) {
+                return support.isDataFlavorSupported(DataFlavor.javaFileListFlavor);
+            }
+
+            @Override
+            public boolean importData(TransferSupport support) {
+                if (!canImport(support)) return false;
+                try {
+                    java.util.List<File> files = (java.util.List<File>) support.getTransferable()
+                            .getTransferData(DataFlavor.javaFileListFlavor);
+                    if (!files.isEmpty()) {
+                        File imageFile = files.get(0);
+                        imagePathTextField.setText(imageFile.getAbsolutePath());
+                        imagePathTextField.setVisible(true);
+                        ImageIcon icon = new ImageIcon(imageFile.getAbsolutePath());
+                        Image scaledImage = icon.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH);
+                        placeholderLabel.setIcon(new ImageIcon(scaledImage));
+                        placeholderLabel.setText("");
+                        placeholderLabel.setBorder(null);
+                        imageContainer.remove(pickImageButton);
+                        imageContainer.revalidate();
+                        imageContainer.repaint();
+                        return true;
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                return false;
+            }
+        });
+    }
+
+    public void showWindow() {
+        JFrame frame = new JFrame("Add Game");
+        frame.setContentPane(mainWindow);  // this gets the root JPanel from the form
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // closes only this window
+        frame.pack();
+        frame.setLocationRelativeTo(null); // center on screen
+        frame.setVisible(true);
+    }
+}
