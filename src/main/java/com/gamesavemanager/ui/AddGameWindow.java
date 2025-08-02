@@ -22,7 +22,10 @@ public class AddGameWindow {
     private Path selectedSaveFilePath;
     private Path selectedImagePath;
 
-    public Game AddGameWindow() {
+    private GameListener listener;
+
+    public AddGameWindow(GameListener listener) {
+        this.listener = listener;
 
         Game game = new Game("", "", "", null, null);
 
@@ -108,15 +111,20 @@ public class AddGameWindow {
             if (selectedSaveFile != null) {
                 game.setLocalSaveFile(selectedSaveFile);
                 game.setLocalSaveFilePath(selectedSaveFilePath);
-            }
-            else{
+                game.setLocalSaveFileString(selectedSaveFile.getAbsolutePath());
+            } else {
                 JOptionPane.showMessageDialog(mainWindow, "Please select a save file before saving.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             game.setName(gameNameArea.getText());
-            System.out.println("Game updated: " + game);
-        });
+            System.out.println("Game updated: " + game.getName());
 
+            if (listener != null) {
+                listener.onGameAdded(game);
+            }
+            // Close the window
+            SwingUtilities.getWindowAncestor(mainWindow).dispose();
+        });
 
 
         // Add all right rows
@@ -150,6 +158,11 @@ public class AddGameWindow {
                         JOptionPane.showMessageDialog(mainWindow, "Image must be a perfect square (width = height).", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
+                    //update the game object with the image file
+                    game.setLocalImagePath(imageFile.toPath());
+                    game.setLocalImagePathString(imageFile.getAbsolutePath());
+                    game.setImage(ImageIO.read(imageFile));
+
                     imagePathTextField.setText(imageFile.getAbsolutePath());
                     imagePathTextField.setVisible(true);
                     Image scaledImage = img.getScaledInstance(300, 300, Image.SCALE_SMOOTH);
@@ -199,11 +212,9 @@ public class AddGameWindow {
                 return false;
             }
         });
-        return game;
     }
 
     public void showWindow() {
-        this.AddGameWindow();
         JFrame frame = new JFrame("Add Game");
         frame.setContentPane(mainWindow);  // this gets the root JPanel from the form
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // closes only this window

@@ -1,25 +1,29 @@
 package main.java.com.gamesavemanager.obj;
 
 import java.io.File;
+import java.io.Serializable;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.awt.image.BufferedImage;
 
-public class Game {
+public class Game implements Serializable {
 
     //variables
     private String id;
     private String name;
     private String publisher;
 
-    //save file file, save file path,
-    //image file and image path.
-    private File localSaveFile;
-    private Path localSaveFilePath;
-    private BufferedImage image;
-    private Path localImagePath;
+    //transient unserializable attributes
+    private transient File localSaveFile;
+    private transient Path localSaveFilePath;
+    private transient BufferedImage image;
+    private transient Path localImagePath;
 
-    // Google Drive specific attributes
+    //string representations of paths for serialization
+    private String localSaveFileString;
+    private String localImagePathString;
+
+    //google drive specific attributes
     private String googleDriveFolderId;
     private String googleDriveRootFolderId;
 
@@ -50,6 +54,8 @@ public class Game {
     public File getLocalSaveFile() { return localSaveFile; }
     public Path getLocalImagePath() { return localImagePath; }
     public BufferedImage getImage() { return image; }
+    public String getLocalSaveFileString() { return localSaveFileString; }
+    public String getLocalImagePathString() { return localImagePathString; }
 
     public String getGoogleDriveFolderId() { return googleDriveFolderId; }
     public String getGoogleDriveRootFolderId() { return googleDriveRootFolderId; }
@@ -68,6 +74,8 @@ public class Game {
     public void setLocalSaveFile(File localSaveFile) { this.localSaveFile = localSaveFile; }
     public void setLocalImagePath(Path localImagePath) { this.localImagePath = localImagePath; }
     public void setImage(BufferedImage image) { this.image = image; }
+    public void setLocalSaveFileString(String localSaveFileString) { this.localSaveFileString = localSaveFileString; }
+    public void setLocalImagePathString(String localImagePathString) { this.localImagePathString = localImagePathString; }
 
     public void setGoogleDriveFolderId(String googleDriveFolderId) { this.googleDriveFolderId = googleDriveFolderId; }
     public void setGoogleDriveRootFolderId(String googleDriveRootFolderId) { this.googleDriveRootFolderId = googleDriveRootFolderId; }
