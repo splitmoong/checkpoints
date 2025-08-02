@@ -1,4 +1,10 @@
 package main.java.com.gamesavemanager.ui;
+//game object class
+import main.java.com.gamesavemanager.obj.Game;
+import java.nio.file.Path;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,7 +18,15 @@ public class AddGameWindow {
     private JButton btnCancel;
     private JButton btnAddGame;
 
-    public AddGameWindow() {
+    private File selectedSaveFile;
+    private Path selectedSaveFilePath;
+    private Path selectedImagePath;
+
+    public Game AddGameWindow() {
+
+        Game game = new Game("", "", "", null, null);
+
+
         mainWindow = new JPanel(new GridLayout(1, 2, 10, 0));
         mainWindow.setPreferredSize(new Dimension(670, 340));
         mainWindow.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
@@ -60,9 +74,13 @@ public class AddGameWindow {
             JFileChooser fileChooser = new JFileChooser();
             int result = fileChooser.showOpenDialog(null);
             if (result == JFileChooser.APPROVE_OPTION) {
-                File selectedFile = fileChooser.getSelectedFile();
-                System.out.println("Selected Save File: " + selectedFile.getAbsolutePath());
+                selectedSaveFile = fileChooser.getSelectedFile();
+                selectedSaveFilePath = selectedSaveFile.toPath();
+                System.out.println("Selected Save File: " + selectedSaveFile.getAbsolutePath());
+                pickSaveFileButton.setText("Save File Selected");
+                pickSaveFileButton.setForeground(new Color(82, 107, 77));                // You can store or use the file as needed
                 // You can store or use the file as needed
+
             }
         });
 
@@ -85,6 +103,22 @@ public class AddGameWindow {
         actionButtons.add(btnCancel);
         actionButtons.add(btnAddGame);
 
+        btnAddGame.addActionListener(e -> {
+            game.setName(gameNameArea.getText());
+            if (selectedSaveFile != null) {
+                game.setLocalSaveFile(selectedSaveFile);
+                game.setLocalSaveFilePath(selectedSaveFilePath);
+            }
+            else{
+                JOptionPane.showMessageDialog(mainWindow, "Please select a save file before saving.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            game.setName(gameNameArea.getText());
+            System.out.println("Game updated: " + game);
+        });
+
+
+
         // Add all right rows
         rightPanel.add(filePickerPanel);
         rightPanel.add(Box.createVerticalStrut(10));
@@ -103,17 +137,31 @@ public class AddGameWindow {
             JFileChooser fileChooser = new JFileChooser();
             int result = fileChooser.showOpenDialog(null);
             if (result == JFileChooser.APPROVE_OPTION) {
-                String imagePath = fileChooser.getSelectedFile().getAbsolutePath();
-                imagePathTextField.setText(imagePath);
-                imagePathTextField.setVisible(true);
-                ImageIcon icon = new ImageIcon(imagePath);
-                Image scaledImage = icon.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH);
-                placeholderLabel.setIcon(new ImageIcon(scaledImage));
-                placeholderLabel.setText("");
-                placeholderLabel.setBorder(null);
-                imageContainer.remove(pickImageButton);
-                imageContainer.revalidate();
-                imageContainer.repaint();
+                File imageFile = fileChooser.getSelectedFile();
+                try {
+                    BufferedImage img = ImageIO.read(imageFile);
+                    if (img == null) {
+                        JOptionPane.showMessageDialog(mainWindow, "Selected file is not a supported image.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    int width = img.getWidth();
+                    int height = img.getHeight();
+                    if (width != height) {
+                        JOptionPane.showMessageDialog(mainWindow, "Image must be a perfect square (width = height).", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    imagePathTextField.setText(imageFile.getAbsolutePath());
+                    imagePathTextField.setVisible(true);
+                    Image scaledImage = img.getScaledInstance(300, 300, Image.SCALE_SMOOTH);
+                    placeholderLabel.setIcon(new ImageIcon(scaledImage));
+                    placeholderLabel.setText("");
+                    placeholderLabel.setBorder(null);
+                    imageContainer.remove(pickImageButton);
+                    imageContainer.revalidate();
+                    imageContainer.repaint();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(mainWindow, "Error loading image: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 
@@ -151,9 +199,11 @@ public class AddGameWindow {
                 return false;
             }
         });
+        return game;
     }
 
     public void showWindow() {
+        this.AddGameWindow();
         JFrame frame = new JFrame("Add Game");
         frame.setContentPane(mainWindow);  // this gets the root JPanel from the form
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // closes only this window
