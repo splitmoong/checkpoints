@@ -1,4 +1,4 @@
-package main.java.com.gamesavemanager.obj;
+package com.gamesavemanager.obj;
 
 import java.io.File;
 import java.io.Serializable;
@@ -12,6 +12,7 @@ public class Game implements Serializable {
     private String id;
     private String name;
     private String publisher;
+    private static final long serialVersionUID = 6185443264251524809L;
 
     //transient unserializable attributes
     private transient File localSaveFile;
@@ -28,9 +29,9 @@ public class Game implements Serializable {
     private String googleDriveRootFolderId;
 
     //save file metadata
-    private LocalDateTime dateAdded;
-    private LocalDateTime lastSynced;
-    private long lastLocalModificationTime;
+    private transient LocalDateTime dateAdded;
+    private transient LocalDateTime lastSynced;
+    private transient long lastLocalModificationTime;
 
 
     // Constructor

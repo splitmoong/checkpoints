@@ -1,6 +1,8 @@
-package main.java.com.gamesavemanager.ui;
+package com.gamesavemanager.ui;
 //game object class
-import main.java.com.gamesavemanager.obj.Game;
+import com.gamesavemanager.obj.Game;
+import com.gamesavemanager.ui.GameListener;
+
 import java.nio.file.Path;
 
 import javax.imageio.ImageIO;
@@ -204,6 +206,14 @@ public class AddGameWindow {
                         imageContainer.remove(pickImageButton);
                         imageContainer.revalidate();
                         imageContainer.repaint();
+                        // Update the game object with the image file (fix for drag-and-drop)
+                        game.setLocalImagePath(imageFile.toPath());
+                        game.setLocalImagePathString(imageFile.getAbsolutePath());
+                        try {
+                            game.setImage(ImageIO.read(imageFile));
+                        } catch (Exception ex) {
+                            game.setImage(null);
+                        }
                         return true;
                     }
                 } catch (Exception ex) {
