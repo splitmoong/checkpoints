@@ -28,11 +28,12 @@ public class Game implements Serializable {
     private String googleDriveFolderId;
     private String googleDriveRootFolderId;
 
-    //save file metadata
+    //date-time added and synced
     private transient LocalDateTime dateAdded;
     private transient LocalDateTime lastSynced;
     private transient long lastLocalModificationTime;
-
+    private String dateAddedString;
+    private String lastSyncedString;
 
     // Constructor
     public Game(String id, String name, String publisher, File localSaveFile, Path localImagePath) {
@@ -80,7 +81,17 @@ public class Game implements Serializable {
 
     public void setGoogleDriveFolderId(String googleDriveFolderId) { this.googleDriveFolderId = googleDriveFolderId; }
     public void setGoogleDriveRootFolderId(String googleDriveRootFolderId) { this.googleDriveRootFolderId = googleDriveRootFolderId; }
-    public void setDateAdded(LocalDateTime dateAdded) { this.dateAdded = dateAdded; }
-    public void setLastSynced(LocalDateTime lastSynced) { this.lastSynced = lastSynced; }
-    public void setLastLocalModificationTime(long lastLocalModificationTime) { this.lastLocalModificationTime = lastLocalModificationTime; }
+
+
+    public void setDateAdded(LocalDateTime dateAdded) {
+        this.dateAdded = dateAdded;
+        this.dateAddedString = dateAdded.toString();
+    }
+    public void setLastSynced(LocalDateTime lastSynced) {
+        this.lastSynced = lastSynced;
+        this.lastSyncedString = lastSynced.toString();
+    }
+    public void setLastLocalModificationTime(long lastLocalModificationTime) {
+        this.lastLocalModificationTime = lastLocalModificationTime;
+    }
 }
