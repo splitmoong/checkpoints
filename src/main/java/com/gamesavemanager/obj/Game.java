@@ -20,9 +20,11 @@ public class Game implements Serializable {
     private transient BufferedImage image;
     private transient Path localImagePath;
 
+
     //string representations of paths for serialization
     private String localSaveFileString;
     private String localImagePathString;
+    private String repositoryPath;
 
     //google drive specific attributes
     private String googleDriveFolderId;
@@ -93,5 +95,8 @@ public class Game implements Serializable {
     }
     public void setLastLocalModificationTime(long lastLocalModificationTime) {
         this.lastLocalModificationTime = lastLocalModificationTime;
+    }
+    public void setRepositoryPath(String repositoryPath) {
+        this.repositoryPath = repositoryPath;
     }
 }
